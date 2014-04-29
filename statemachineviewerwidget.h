@@ -23,10 +23,14 @@
 #ifndef GAMMARAY_STATEMACHINEVIEWERWIDGET_H
 #define GAMMARAY_STATEMACHINEVIEWERWIDGET_H
 
-#include <ui/tooluifactory.h>
+#include "gammaray_export.h"
+
 #include "statemachineviewerinterface.h"
 
 #include "statemachineviewerutil.h"
+
+#include "statemodel.h"
+#include "statemachineviewerserver.h"
 
 #include "gvgraph/gvtypes.h"
 
@@ -47,11 +51,11 @@ class GVNodeItem;
 class GVEdgeItem;
 class GVGraphItem;
 
-class StateMachineViewerWidget : public QWidget
+class GAMMARAY_EXPORT StateMachineViewerWidget : public QWidget
 {
   Q_OBJECT
   public:
-    explicit StateMachineViewerWidget(QWidget *parent = 0, Qt::WindowFlags f = 0);
+    explicit StateMachineViewerWidget(StateMachineViewerServer* stateMachineModel, StateModel* stateModel, QWidget *parent = 0, Qt::WindowFlags f = 0);
     ~StateMachineViewerWidget();
 
   private slots:
@@ -96,12 +100,6 @@ class StateMachineViewerWidget : public QWidget
     StateMachineViewerInterface *m_interface;
 };
 
-class StateMachineViewerUiFactory : public QObject, public StandardToolUiFactory<StateMachineViewerWidget>
-{
-  Q_OBJECT
-  Q_INTERFACES(GammaRay::ToolUiFactory)
-  Q_PLUGIN_METADATA(IID "com.kdab.gammaray.StateMachineViewerUi")
-};
 
 }
 

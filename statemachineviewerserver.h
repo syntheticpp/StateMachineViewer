@@ -23,10 +23,12 @@
 #ifndef GAMMARAY_STATEMACHINEVIEWER_STATEMACHINEVIEWERSERVER_H
 #define GAMMARAY_STATEMACHINEVIEWER_STATEMACHINEVIEWERSERVER_H
 
+#include "gammaray_export.h"
+
+
 #include "statemachineviewerutil.h"
 #include "statemachineviewerinterface.h"
-
-#include <core/toolfactory.h>
+#include "objecttypefilterproxymodel.h"
 
 #include <QHash>
 #include <QSet>
@@ -34,7 +36,6 @@
 #include <QVector>
 #include <QStateMachine>
 
-#include <config-gammaray.h>
 
 class QAbstractTransition;
 class QStateMachine;
@@ -48,16 +49,18 @@ class StateModel;
 class StateMachineWatcher;
 class TransitionModel;
 
-class StateMachineViewerServer : public StateMachineViewerInterface
+class GAMMARAY_EXPORT StateMachineViewerServer : public StateMachineViewerInterface
 {
   Q_OBJECT
   Q_INTERFACES(GammaRay::StateMachineViewerInterface)
   public:
-    explicit StateMachineViewerServer(ProbeInterface *probe, QObject *parent = 0);
+    explicit StateMachineViewerServer(QObject *parent = 0);
 
     void addState(QAbstractState *state);
 
     QStateMachine *selectedStateMachine() const;
+    
+    ObjectTypeFilterProxyModel<QStateMachine>* filter() const { return m_stateMachineFilter; }
 
     using StateMachineViewerInterface::stateConfigurationChanged;
 
@@ -80,6 +83,7 @@ class StateMachineViewerServer : public StateMachineViewerInterface
     void repopulateGraph();
 
   private:
+    ObjectTypeFilterProxyModel<QStateMachine>* m_stateMachineFilter;
 
     void addStateOnly(QAbstractState *state);
     void addTransition(QAbstractTransition *transition);
@@ -100,23 +104,6 @@ class StateMachineViewerServer : public StateMachineViewerInterface
     QSet<QAbstractState*> m_lastStateConfig;
 };
 
-class StateMachineViewerFactory :
-public QObject, public StandardToolFactory<QStateMachine, StateMachineViewerServer>
-{
-  Q_OBJECT
-  Q_INTERFACES(GammaRay::ToolFactory)
-  Q_PLUGIN_METADATA(IID "com.kdab.gammaray.StateMachineViewer")
-
-  public:
-    explicit StateMachineViewerFactory(QObject *parent = 0) : QObject(parent)
-    {
-    }
-
-    inline QString name() const
-    {
-      return tr("State Machine Viewer");
-    }
-};
 
 }
 

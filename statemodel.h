@@ -23,14 +23,40 @@
 #ifndef GAMMARAY_STATEMACHINEVIEWER_STATEMODEL_H
 #define GAMMARAY_STATEMACHINEVIEWER_STATEMODEL_H
 
-#include <core/objectmodelbase.h>
+#include "objectmodelbase.h"
 
+#include <QSet>
+
+class QAbstractState;
 class QAbstractTransition;
 class QStateMachine;
 
 namespace GammaRay {
 
-class StateModelPrivate;
+ class StateModel;
+class StateMachineWatcher;
+
+class StateModelPrivate
+{
+  StateModelPrivate(StateModel *qq);
+
+  Q_DECLARE_PUBLIC(StateModel)
+  StateModel * const q_ptr;
+  StateMachineWatcher * const m_stateMachineWatcher;
+  QStateMachine *m_stateMachine;
+  QSet<QAbstractState*> m_lastConfiguration;
+
+  QList<QObject*> children(QObject *parent) const;
+
+  QObject *mapModelIndex2QObject(const QModelIndex &) const;
+  QModelIndex indexForState(QAbstractState *state) const;
+
+// private slots:
+  void stateConfigurationChanged();
+  void handleMachineDestroyed(QObject*);
+};
+
+
 
 class StateModel : public ObjectModelBase<QAbstractItemModel>
 {

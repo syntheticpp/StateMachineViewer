@@ -1,9 +1,11 @@
 /*
+  deferredresizemodesetter.cpp
+
   This file is part of GammaRay, the Qt application inspection and
   manipulation tool.
 
   Copyright (C) 2013-2014 Klarälvdalens Datakonsult AB, a KDAB Group company, info@kdab.com
-  Author: Milian Wolff <milian.wolff@kdab.com>
+  Author: Volker Krause <volker.krause@kdab.com>
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -19,23 +21,29 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "statemachineviewerinterface.h"
+#include "deferredresizemodesetter.h"
 
 using namespace GammaRay;
 
-StateMachineViewerInterface::StateMachineViewerInterface(QObject *parent)
-  : QObject(parent)
+DeferredResizeModeSetter::DeferredResizeModeSetter(QHeaderView* headerView, int section, QHeaderView::ResizeMode resizeMode):
+  QObject(headerView),
+  m_view(headerView),
+  m_section(section),
+  m_resizeMode(resizeMode)
 {
-  qRegisterMetaType<StateId>();
-  qRegisterMetaTypeStreamOperators<StateId>();
-  qRegisterMetaType<TransitionId>();
-  qRegisterMetaTypeStreamOperators<TransitionId>();
-  qRegisterMetaType<StateMachineConfiguration>();
-  qRegisterMetaTypeStreamOperators<StateMachineConfiguration>();
-  qRegisterMetaType<StateType>();
-  qRegisterMetaTypeStreamOperators<StateType>();
+  connect(m_view, SIGNAL(sectionCountChanged(int,int)), SLOT(setSectionResizeMode()));
+  setSectionResizeMode();
 }
 
-StateMachineViewerInterface::~StateMachineViewerInterface()
+DeferredResizeModeSetter::~DeferredResizeModeSetter()
 {
 }
+
+void DeferredResizeModeSetter::setSectionResizeMode()
+{
+  if (m_view->count() <= m_section)
+    return; // section not loaded yet
+
+  m_view->setResizeMode(m_section, m_resizeMode);
+}
+

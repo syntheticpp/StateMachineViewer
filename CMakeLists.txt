@@ -22,32 +22,26 @@ set(GRAPHVIZ_EMBEDDED 1)
 add_definitions(-DGRAPHVIZ_MAJOR_VERSION=${GRAPHVIZ_MAJOR_VERSION} -DGRAPHVIZ_MINOR_VERSION=${GRAPHVIZ_MINOR_VERSION})
 add_definitions(${LIBCGRAPHVIZ_DEFINITIONS})
 
-add_definitions(-DGAMMARAY_GRAPHVIZ_EMBEDDED)
+add_definitions(-DGAMMARAY_GRAPHVIZ_EMBEDDED -DMAKE_GAMMARAY_LIB)
 add_definitions(${GRAPHVIZ_COMPILE_FLAGS})
 
-include_directories(${GRAPHVIZ_INCLUDE_DIR} ${GRAPHVIZ_INCLUDE_DIR}/graphviz)
+include_directories(${GRAPHVIZ_INCLUDE_DIR} ${GRAPHVIZ_INCLUDE_DIR}/graphviz ${CMAKE_CURRENT_BINARY_DIR})
 
 
+file(GLOB headers ${CMAKE_CURRENT_SOURCE_DIR}/*.h)
+file(GLOB gvheaders ${CMAKE_CURRENT_SOURCE_DIR}/gvgraph/*.h)
+
+qt4_wrap_cpp(moced ${headers} OPTIONS "-nw")
 qt4_wrap_ui(uiced statemachineviewer.ui)
+source_group("Generated Files" FILES ${moced} ${uiced})
 
-set(sources
-    statemachineviewerinterface.cpp
-    #server
-    statemachineviewerserver.cpp
-    transitionmodel.cpp
-    statemodel.cpp
-    statemachinewatcher.cpp
-    # gui & client
-    statemachineviewerclient.cpp
-    statemachineview.cpp
-    statemachineviewerwidget.cpp
-    # this part depends on graphviz
-    gvgraph/gvgraph.cpp
-    gvgraph/gvgraphitems.cpp
-    gvgraph/gvutils.cpp)
+file(GLOB sources ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
+file(GLOB gvsources ${CMAKE_CURRENT_SOURCE_DIR}/gvgraph//*.cpp)
     
-add_library(statemachineviewer SHARED ${sources} ${headers} ${uiced})
-set(linklibs ${GRAPHVIZ_GVC_LIBRARY} ${GRAPHVIZ_CGRAPH_LIBRARY} ${QT_QTGUI_LIBRARIES}  ${QT_QTCORE_LIBRARIES})
+list(REMOVE_ITEM sources ${CMAKE_CURRENT_SOURCE_DIR}/test_main.cpp)
+
+add_library(statemachineviewer SHARED ${sources} ${headers} ${gvsources} ${gvheaders} ${moced} ${uiced})
+set(linklibs ${GRAPHVIZ_GRAPH_LIBRARY} ${QT_QTGUI_LIBRARIES}  ${QT_QTCORE_LIBRARIES})
 target_link_libraries(statemachineviewer ${linklibs})
 
 

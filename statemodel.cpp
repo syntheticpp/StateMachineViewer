@@ -23,7 +23,7 @@
 #include "statemodel.h"
 #include "statemachinewatcher.h"
 
-#include <core/util.h>
+#include "util.h"
 
 #include <QAbstractTransition>
 #include <QDebug>
@@ -36,34 +36,18 @@ using namespace GammaRay;
 
 namespace GammaRay {
 
-class StateModelPrivate
+
+StateModelPrivate::StateModelPrivate(StateModel *qq)
+: q_ptr(qq),
+    m_stateMachine(0),
+    m_stateMachineWatcher(new StateMachineWatcher(qq))
 {
-  StateModelPrivate(StateModel *qq)
-    : q_ptr(qq),
-      m_stateMachine(0),
-      m_stateMachineWatcher(new StateMachineWatcher(qq))
-  {
-    Q_ASSERT(qq->connect(m_stateMachineWatcher, SIGNAL(stateEntered(QAbstractState*)),
-                         qq, SLOT(stateConfigurationChanged())));
-    Q_ASSERT(qq->connect(m_stateMachineWatcher, SIGNAL(stateExited(QAbstractState*)),
-                         qq, SLOT(stateConfigurationChanged())));
+Q_ASSERT(qq->connect(m_stateMachineWatcher, SIGNAL(stateEntered(QAbstractState*)),
+                        qq, SLOT(stateConfigurationChanged())));
+Q_ASSERT(qq->connect(m_stateMachineWatcher, SIGNAL(stateExited(QAbstractState*)),
+                        qq, SLOT(stateConfigurationChanged())));
   }
 
-  Q_DECLARE_PUBLIC(StateModel)
-  StateModel * const q_ptr;
-  StateMachineWatcher * const m_stateMachineWatcher;
-  QStateMachine *m_stateMachine;
-  QSet<QAbstractState*> m_lastConfiguration;
-
-  QList<QObject*> children(QObject *parent) const;
-
-  QObject *mapModelIndex2QObject(const QModelIndex &) const;
-  QModelIndex indexForState(QAbstractState *state) const;
-
-// private slots:
-  void stateConfigurationChanged();
-  void handleMachineDestroyed(QObject*);
-};
 
 }
 
@@ -287,4 +271,4 @@ QModelIndex StateModel::parent(const QModelIndex &index) const
   return createIndex(row, 0, grandParent);
 }
 
-#include "moc_statemodel.cpp"
+//#include "moc_statemodel.cpp"

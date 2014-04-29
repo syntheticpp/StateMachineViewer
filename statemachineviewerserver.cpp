@@ -27,9 +27,7 @@
 #include "transitionmodel.h"
 
 
-#include <core/objecttypefilterproxymodel.h>
-#include <core/probeinterface.h>
-#include <common/objectbroker.h>
+#include "objecttypefilterproxymodel.h"
 
 #include <QAbstractTransition>
 #include <QFinalState>
@@ -37,33 +35,32 @@
 #include <QSignalTransition>
 #include <QStateMachine>
 #include <QItemSelectionModel>
+#include <QStringList>
 
-#include <QtPlugin>
 
 #include <iostream>
 
 using namespace GammaRay;
 using namespace std;
 
-StateMachineViewerServer::StateMachineViewerServer(ProbeInterface *probe, QObject *parent)
+StateMachineViewerServer::StateMachineViewerServer(QObject *parent)
   : StateMachineViewerInterface(parent),
     m_stateModel(new StateModel(this)),
     m_transitionModel(new TransitionModel(this)),
     m_maximumDepth(0),
     m_stateMachineWatcher(new StateMachineWatcher(this))
 {
-  probe->registerModel("com.kdab.GammaRay.StateModel", m_stateModel);
-  QItemSelectionModel *stateSelectionModel = ObjectBroker::selectionModel(m_stateModel);
-  connect(stateSelectionModel, SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-          SLOT(stateSelectionChanged()));
 
-  ObjectTypeFilterProxyModel<QStateMachine> *stateMachineFilter =
-    new ObjectTypeFilterProxyModel<QStateMachine>(this);
-  stateMachineFilter->setSourceModel(probe->objectListModel());
-  probe->registerModel("com.kdab.GammaRay.StateMachineModel", stateMachineFilter);
-  QItemSelectionModel *stateMachineSelectionModel = ObjectBroker::selectionModel(stateMachineFilter);
+  /*QItemSelectionModel *stateSelectionModel = ObjectBroker::selectionModel(m_stateModel);
+  connect(stateSelectionModel, SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+          SLOT(stateSelectionChanged()));*/
+
+  m_stateMachineFilter = new ObjectTypeFilterProxyModel<QStateMachine>(this);
+  /*m_stateMachineFilter->setSourceModel(probe->objectListModel());
+  probe->registerModel("com.kdab.GammaRay.StateMachineModel", m_stateMachineFilter);
+  QItemSelectionModel *stateMachineSelectionModel = ObjectBroker::selectionModel(m_stateMachineFilter);
   connect(stateMachineSelectionModel, SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-          SLOT(handleMachineClicked(QModelIndex)));
+          SLOT(handleMachineClicked(QModelIndex)));*/
 
   connect(m_stateMachineWatcher, SIGNAL(stateEntered(QAbstractState*)),
           SLOT(stateEntered(QAbstractState*)));
@@ -232,6 +229,7 @@ void StateMachineViewerServer::handleMachineClicked(const QModelIndex &index)
 
 void StateMachineViewerServer::stateSelectionChanged()
 {
+    /*
   const QModelIndexList& selection = ObjectBroker::selectionModel(m_stateModel)->selectedRows();
   QVector<QAbstractState*> filter;
   filter.reserve(selection.size());
@@ -255,7 +253,7 @@ void StateMachineViewerServer::stateSelectionChanged()
       filter << state;
     }
   }
-  setFilteredStates(filter);
+  setFilteredStates(filter);*/
 }
 
 void StateMachineViewerServer::handleTransitionTriggered(QAbstractTransition *transition)
@@ -396,5 +394,5 @@ void StateMachineViewerServer::toggleRunning()
 }
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-Q_EXPORT_PLUGIN(StateMachineViewerFactory)
+//Q_EXPORT_PLUGIN(StateMachineViewerFactory)
 #endif

@@ -20,7 +20,6 @@
 */
 
 #include "statemachineviewerclient.h"
-#include <common/endpoint.h>
 
 using namespace GammaRay;
 
@@ -32,15 +31,15 @@ StateMachineViewerClient::StateMachineViewerClient(QObject *parent)
 
 void StateMachineViewerClient::setMaximumDepth(int depth)
 {
-  Endpoint::instance()->invokeObject(objectName(), "setMaximumDepth", QVariantList() << depth);
+  //Endpoint::instance()->invokeObject(objectName(), "setMaximumDepth", QVariantList() << depth);
 }
 
 void StateMachineViewerClient::toggleRunning()
 {
-  Endpoint::instance()->invokeObject(objectName(), "toggleRunning");
+  //Endpoint::instance()->invokeObject(objectName(), "toggleRunning");
 }
 
 void StateMachineViewerClient::repopulateGraph()
 {
-  Endpoint::instance()->invokeObject(objectName(), "repopulateGraph");
+  //Endpoint::instance()->invokeObject(objectName(), "repopulateGraph");
 }

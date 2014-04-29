@@ -23,7 +23,7 @@
 
 #include "transitionmodel.h"
 
-#include <core/util.h>
+#include "util.h"
 
 #include <QAbstractTransition>
 #include <QDebug>
