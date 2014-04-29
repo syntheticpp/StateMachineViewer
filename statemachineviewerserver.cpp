@@ -69,9 +69,7 @@ StateMachineViewerServer::StateMachineViewerServer(QObject *parent)
   connect(m_stateMachineWatcher, SIGNAL(transitionTriggered(QAbstractTransition*)),
           SLOT(handleTransitionTriggered(QAbstractTransition*)));
 
-
-
-  setMaximumDepth(3);
+  setMaximumDepth(0);
   updateStartStop();
 }
 

@@ -62,16 +62,18 @@ static qreal relativePosition(const QList<T>& list, T t)
   return (index+1.0) / list.size();
 }
 
-StateMachineViewerWidget::StateMachineViewerWidget(StateMachineViewerServer* server , StateModel* stateModel, QWidget *parent, Qt::WindowFlags f)
+StateMachineViewerWidget::StateMachineViewerWidget(StateMachineViewerServer* server, QWidget *parent, Qt::WindowFlags f)
   : QWidget(parent, f)
   , m_ui(new Ui::StateMachineViewer)
   , m_graph(new GVGraph("State Machine"))
   , m_font(QFont("Helvetica [Cronxy]", 20))
   , m_interface(0)
 {
-  ObjectTypeFilterProxyModel<QStateMachine>* stateMachineModel = server->filter();
-
   m_lastConfigurations.resize(5);
+
+  //ObjectBroker::registerClientObjectFactoryCallback<StateMachineViewerInterface*>(createStateMachineViewerClient);
+  //m_interface = ObjectBroker::object<StateMachineViewerInterface*>();
+  m_interface = server;
 
   m_ui->setupUi(this);
 
@@ -81,16 +83,20 @@ StateMachineViewerWidget::StateMachineViewerWidget(StateMachineViewerServer* ser
   m_ui->graphicsView->setScene(new QGraphicsScene(this));
   m_ui->graphicsView->setRenderHint(QPainter::Antialiasing);
 
+  //QAbstractItemModel *stateMachineModel = ObjectBroker::model("com.kdab.GammaRay.StateMachineModel");
+  QAbstractItemModel* stateMachineModel = server->filter();
   m_ui->stateMachinesView->setModel(stateMachineModel);
   //m_ui->stateMachinesView->setSelectionModel(ObjectBroker::selectionModel(stateMachineModel));
   new DeferredResizeModeSetter(m_ui->stateMachinesView->header(), 0, QHeaderView::Stretch);
   new DeferredResizeModeSetter(m_ui->stateMachinesView->header(), 1, QHeaderView::ResizeToContents);
   new DeferredTreeViewConfiguration(m_ui->stateMachinesView, false);
 
+  //QAbstractItemModel *stateModel = ObjectBroker::model("com.kdab.GammaRay.StateModel");
+  QAbstractItemModel *stateModel = server->stateModel();
   connect(stateModel, SIGNAL(modelReset()), this, SLOT(stateModelReset()));
 
   m_ui->singleStateMachineView->setModel(stateModel);
-  //m_ui->singleStateMachineView->setSelectionModel(ObjectBroker::selectionModel(stateModel));
+//  m_ui->singleStateMachineView->setSelectionModel(ObjectBroker::selectionModel(stateModel));
   m_ui->singleStateMachineView->setSelectionMode(QAbstractItemView::ExtendedSelection);
   new DeferredResizeModeSetter(m_ui->singleStateMachineView->header(), 0, QHeaderView::Stretch);
   new DeferredResizeModeSetter(m_ui->singleStateMachineView->header(), 1, QHeaderView::ResizeToContents);

@@ -55,7 +55,7 @@ class GAMMARAY_EXPORT StateMachineViewerWidget : public QWidget
 {
   Q_OBJECT
   public:
-    explicit StateMachineViewerWidget(StateMachineViewerServer* stateMachineModel, StateModel* stateModel, QWidget *parent = 0, Qt::WindowFlags f = 0);
+    explicit StateMachineViewerWidget(StateMachineViewerServer*, QWidget *parent = 0, Qt::WindowFlags f = 0);
     ~StateMachineViewerWidget();
 
   private slots:

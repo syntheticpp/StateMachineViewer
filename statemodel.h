@@ -33,7 +33,7 @@ class QStateMachine;
 
 namespace GammaRay {
 
- class StateModel;
+class StateModel;
 class StateMachineWatcher;
 
 class StateModelPrivate

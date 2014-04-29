@@ -61,10 +61,11 @@ class GAMMARAY_EXPORT StateMachineViewerServer : public StateMachineViewerInterf
     QStateMachine *selectedStateMachine() const;
     
     ObjectTypeFilterProxyModel<QStateMachine>* filter() const { return m_stateMachineFilter; }
+    StateModel* stateModel() const { return m_stateModel; }
 
     using StateMachineViewerInterface::stateConfigurationChanged;
 
-  private slots:
+  public slots:
     void stateEntered(QAbstractState *state);
     void stateExited(QAbstractState *state);
     void stateConfigurationChanged();
