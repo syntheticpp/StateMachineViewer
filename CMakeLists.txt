@@ -7,8 +7,10 @@ set(QT_USE_IMPORTED_TARGETS true)
 find_package(Qt4 ${QT_MIN_VERSION} REQUIRED QtCore QtGui)
 include(${QT_USE_FILE})
 
+if(WIN32)
+    set(LIBCGRAPHVIZ_DLL 1)
+endif()
 
-set(LIBCGRAPHVIZ_DLL 1)
 add_subdirectory(libcgraphviz)
 set(GRAPHVIZ_MAJOR_VERSION ${LIBCGRAPHVIZ_MAJOR_VERSION})
 set(GRAPHVIZ_MINOR_VERSION ${LIBCGRAPHVIZ_MINOR_VERSION})
@@ -25,7 +27,7 @@ add_definitions(${LIBCGRAPHVIZ_DEFINITIONS})
 add_definitions(-DGAMMARAY_GRAPHVIZ_EMBEDDED -DMAKE_GAMMARAY_LIB)
 add_definitions(${GRAPHVIZ_COMPILE_FLAGS})
 
-include_directories(${GRAPHVIZ_INCLUDE_DIR} ${GRAPHVIZ_INCLUDE_DIR}/graphviz ${CMAKE_CURRENT_BINARY_DIR})
+include_directories(${GRAPHVIZ_INCLUDE_DIR} ${GRAPHVIZ_INCLUDE_DIR}/graphviz ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR})
 
 
 file(GLOB headers ${CMAKE_CURRENT_SOURCE_DIR}/*.h)
@@ -36,7 +38,7 @@ qt4_wrap_ui(uiced statemachineviewer.ui)
 source_group("Generated Files" FILES ${moced} ${uiced})
 
 file(GLOB sources ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
-file(GLOB gvsources ${CMAKE_CURRENT_SOURCE_DIR}/gvgraph//*.cpp)
+file(GLOB gvsources ${CMAKE_CURRENT_SOURCE_DIR}/gvgraph/*.cpp)
     
 list(REMOVE_ITEM sources ${CMAKE_CURRENT_SOURCE_DIR}/test_main.cpp)
 
