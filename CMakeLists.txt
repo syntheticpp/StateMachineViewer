@@ -43,12 +43,24 @@ file(GLOB headers   ${smvdir}/*.h)
 file(GLOB gvheaders ${smvdir}/gvgraph/*.h)
 
 if(qt5)
-    qt5_wrap_cpp(moced ${headers} OPTIONS "-nw")
-    qt5_wrap_ui(uiced statemachineviewer.ui)
+    macro(qt_moc)
+        qt5_wrap_cpp(${ARGN} OPTIONS "-nw")
+    endmacro()
+    macro(qt_uic)
+        qt5_wrap_ui(${ARGN})
+    endmacro()
 else()
-    qt4_wrap_cpp(moced ${headers} OPTIONS "-nw")
-    qt4_wrap_ui(uiced ${smvdir}/statemachineviewer.ui)
+    macro(qt_moc)
+        qt4_wrap_cpp(${ARGN} OPTIONS "-nw")
+    endmacro()
+    macro(qt_uic)
+        qt4_wrap_ui(${ARGN})
+    endmacro()
 endif()
+
+qt_moc(moced ${headers})
+qt_uic(uiced ${smvdir}/statemachineviewer.ui)
+
 source_group("Generated Files" FILES ${moced} ${uiced})
     
 list(REMOVE_ITEM sources ${smvdir}/test_main.cpp)
@@ -67,3 +79,8 @@ if(test)
 
     target_link_libraries(statemachineviewer_test ${linklibs})
 endif()
+
+
+qt_moc(moced examples/trafficlight/trafficlight.h)
+add_executable(trafficlight examples/trafficlight/main.cpp examples/trafficlight/trafficlight.h ${moced})
+target_link_libraries(trafficlight statemachineviewer ${linklibs})
