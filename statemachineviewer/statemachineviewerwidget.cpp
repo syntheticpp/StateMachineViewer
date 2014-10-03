@@ -62,7 +62,7 @@ static qreal relativePosition(const QList<T>& list, T t)
   return (index+1.0) / list.size();
 }
 
-StateMachineViewerWidget::StateMachineViewerWidget(bool left2right,StateMachineViewerServer* server, QWidget *parent, Qt::WindowFlags f)
+StateMachineViewerWidget::StateMachineViewerWidget(bool left2right, StateMachineViewerServer* server, QWidget *parent, Qt::WindowFlags f)
   : QWidget(parent, f)
   , m_ui(new Ui::StateMachineViewer)
   , m_graph(new GVGraph("State Machine", left2right))

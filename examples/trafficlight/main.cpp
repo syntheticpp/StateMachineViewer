@@ -47,6 +47,9 @@
 #include <QApplication>
 
 
+#include "statemachineviewer.h"
+
+
 class TrafficLightWidget : public QWidget
 {
 public:
@@ -99,6 +102,8 @@ QState *createLightState(LightWidget *light, int duration, QState *parent = 0)
 
 class TrafficLight : public QWidget
 {
+    StateMachineViewer smv;
+    
 public:
     TrafficLight(QWidget *parent = 0)
         : QWidget(parent)
@@ -128,7 +133,17 @@ public:
         machine->addState(yellowGoingRed);
         machine->setInitialState(redGoingYellow);
         machine->start();
+        
+        smv.setStateMachine(machine);
+        smv.show();
     }
+    
+   
+    void closeEvent(QCloseEvent*)
+    {
+        qApp->quit();
+    }
+
 };
 
 

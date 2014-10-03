@@ -98,7 +98,8 @@ class GAMMARAY_EXPORT StateMachineViewerWidget : public QWidget
     RingBuffer<StateMachineConfiguration> m_lastConfigurations;
     RingBuffer<TransitionId> m_lastTransitions;
 
-    StateMachineViewerInterface *m_interface;
+protected:
+    StateMachineViewerServer *m_interface;
 };
 
 
