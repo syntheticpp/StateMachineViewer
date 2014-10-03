@@ -6,16 +6,29 @@ set(smvdir ${CMAKE_CURRENT_SOURCE_DIR}/statemachineviewer)
 
 if(qt5)
     add_definitions(-DQT5)
+    macro(use_qt5lib lib)
+        find_package(${lib} REQUIRED)
+        include_directories(${${lib}_INCLUDE_DIRS})
+    endmacro()
+    use_qt5lib(Qt5Core)
+    get_target_property(qmakebin Qt5::qmake IMPORTED_LOCATION)
+    get_filename_component(QT_BINARY_DIR ${qmakebin} PATH)
+    message(STATUS "Using Qt5 from ${QT_BINARY_DIR}")
+    use_qt5lib(Qt5Widgets)
+    set(qtlibs ${Qt5Widgets_LIBRARIES})
 else()
     cmake_policy(SET CMP0020 NEW) # link qtmain
     set(QT_USE_IMPORTED_TARGETS true)
     find_package(Qt4 ${QT_MIN_VERSION} REQUIRED QtCore QtGui)
     include(${QT_USE_FILE})
+    set(qtlibs ${QT_QTGUI_LIBRARIES}  ${QT_QTCORE_LIBRARIES})
 endif()
 
 if(WIN32)
     set(LIBCGRAPHVIZ_DLL 1)
     add_definitions(-DMAKE_GAMMARAY_LIB)
+else()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 endif()
 
 add_subdirectory(libcgraphviz)
@@ -66,7 +79,7 @@ source_group("Generated Files" FILES ${moced} ${uiced})
 list(REMOVE_ITEM sources ${smvdir}/test_main.cpp)
 
 add_library(statemachineviewer SHARED ${sources} ${headers} ${gvsources} ${gvheaders} ${moced} ${uiced})
-set(linklibs ${GRAPHVIZ_GRAPH_LIBRARY} ${QT_QTGUI_LIBRARIES}  ${QT_QTCORE_LIBRARIES})
+set(linklibs ${GRAPHVIZ_GRAPH_LIBRARY} ${qtlibs})
 target_link_libraries(statemachineviewer ${linklibs})
 
 
