@@ -84,10 +84,21 @@ QObject *TransitionModelPrivate::mapModelIndex2QObject(const QModelIndex &index)
 TransitionModel::TransitionModel(QObject *parent)
   : ObjectModelBase<QAbstractItemModel>(parent), d_ptr(new TransitionModelPrivate(this))
 {
+#ifndef QT5
   QHash<int, QByteArray> _roleNames = roleNames();
   // TODO
   setRoleNames(_roleNames);
+#endif
 }
+
+#ifdef QT5
+QHash<int,QByteArray> TransitionModel::roleNames() const
+{
+  QHash<int, QByteArray> roleNames = QAbstractItemModel::roleNames();
+  // TODO
+  return roleNames;
+}
+#endif
 
 TransitionModel::~TransitionModel()
 {

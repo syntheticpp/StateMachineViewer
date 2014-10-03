@@ -62,20 +62,25 @@ static qreal relativePosition(const QList<T>& list, T t)
   return (index+1.0) / list.size();
 }
 
-StateMachineViewerWidget::StateMachineViewerWidget(StateMachineViewerServer* server, QWidget *parent, Qt::WindowFlags f)
+StateMachineViewerWidget::StateMachineViewerWidget(bool left2right,StateMachineViewerServer* server, QWidget *parent, Qt::WindowFlags f)
   : QWidget(parent, f)
   , m_ui(new Ui::StateMachineViewer)
-  , m_graph(new GVGraph("State Machine"))
+  , m_graph(new GVGraph("State Machine", left2right))
   , m_font(QFont("Helvetica [Cronxy]", 20))
   , m_interface(0)
 {
-  m_lastConfigurations.resize(5);
+  m_lastConfigurations.resize(1);
+  m_lastTransitions.resize(2);
 
   //ObjectBroker::registerClientObjectFactoryCallback<StateMachineViewerInterface*>(createStateMachineViewerClient);
   //m_interface = ObjectBroker::object<StateMachineViewerInterface*>();
   m_interface = server;
 
   m_ui->setupUi(this);
+
+  QFont font("Monospace");
+  font.setStyleHint(QFont::TypeWriter);
+  m_ui->plainTextEdit->setFont(font);
 
   m_graph->setFont(m_font);
 
@@ -90,6 +95,9 @@ StateMachineViewerWidget::StateMachineViewerWidget(StateMachineViewerServer* ser
   new DeferredResizeModeSetter(m_ui->stateMachinesView->header(), 0, QHeaderView::Stretch);
   new DeferredResizeModeSetter(m_ui->stateMachinesView->header(), 1, QHeaderView::ResizeToContents);
   new DeferredTreeViewConfiguration(m_ui->stateMachinesView, false);
+
+  // only one sm atm
+  m_ui->stateMachinesView->hide();
 
   //QAbstractItemModel *stateModel = ObjectBroker::model("com.kdab.GammaRay.StateModel");
   QAbstractItemModel *stateModel = server->stateModel();
@@ -205,7 +213,7 @@ void StateMachineViewerWidget::clearGraph()
 
 void StateMachineViewerWidget::transitionTriggered(TransitionId transition, const QString &label)
 {
-  showMessage(tr("Transition triggered: %1").arg(label));
+  showMessage(tr("\nTriggered : %1").arg(label));
 
   m_lastTransitions.enqueue(transition);
   updateTransitionItems();
@@ -271,6 +279,9 @@ void StateMachineViewerWidget::updateStateItems()
         break;
       case StateMachineState:
         color = QColor(Qt::gray);
+        break;
+    case HistoryState:
+        color = QColor(Qt::lightGray);
         break;
       default:
         color = QColor(Qt::white);
@@ -384,7 +395,7 @@ void StateMachineViewerWidget::transitionAdded(const TransitionId transition, co
   Q_ASSERT(id);
 
   if (!label.isEmpty()) {
-    m_graph->setEdgeAttribute(id, QLatin1String("label"), label);
+    m_graph->setEdgeLabel(id, label);
   }
 
   m_transitionEdgeIdMap.insert(transition, id);

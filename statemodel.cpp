@@ -133,11 +133,23 @@ void StateModelPrivate::handleMachineDestroyed(QObject*)
 StateModel::StateModel(QObject *parent)
   : ObjectModelBase<QAbstractItemModel>(parent), d_ptr(new StateModelPrivate(this))
 {
+#ifndef QT5
   QHash<int, QByteArray> _roleNames = roleNames();
   _roleNames.insert(TransitionsRole, "transitions");
   _roleNames.insert(IsInitialStateRole, "isInitial");
   setRoleNames(_roleNames);
+#endif
 }
+
+#ifdef QT5
+QHash<int,QByteArray> StateModel::roleNames() const
+{
+  QHash<int, QByteArray> roleNames = QAbstractItemModel::roleNames();
+  roleNames.insert(TransitionsRole, "transitions");
+  roleNames.insert(IsInitialStateRole, "isInitial");
+  return roleNames;
+}
+#endif
 
 StateModel::~StateModel()
 {

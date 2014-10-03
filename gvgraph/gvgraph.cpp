@@ -40,7 +40,7 @@ using namespace std;
     while we display at 96 DPI on most operating systems. */
 const qreal DotDefaultDPI = 72.0;
 
-GVGraph::GVGraph(const QString &name)
+GVGraph::GVGraph(const QString &name, bool left2right)
 #ifdef GAMMARAY_GRAPHVIZ_EMBEDDED
   : _context(gvContextPlugins(lt_preloaded_symbols, 0)),
 #else
@@ -49,6 +49,7 @@ GVGraph::GVGraph(const QString &name)
     _graph(0),
     _name(name)
 {
+  _left2right = left2right;
   createGraph();
 }
 
@@ -66,9 +67,11 @@ void GVGraph::createGraph()
 
   _agset(_graph, "overlap", "prism");
   _agset(_graph, "splines", "true");
-  _agset(_graph, "pad", "0,2");
-  _agset(_graph, "dpi", "96,0");
-  _agset(_graph, "nodesep", "0,4");
+  _agset(_graph, "pad", "0.2");
+  _agset(_graph, "dpi", "96.0");
+  _agset(_graph, "nodesep", "0.4");
+  if (_left2right)
+    _agset(_graph, "rankdir", "LR");
 
   setFont(_font);
 }
@@ -214,11 +217,40 @@ EdgeId GVGraph::addEdge(NodeId sourceId, NodeId targetId, const QString &name)
     return 0;
   }
 
-  Agedge_t *edge = _agedge(_graph, source, target, 0, true);
-  Q_ASSERT(edge);
-  EdgeId edgeId = id(edge);
-  Q_ASSERT(edge);
-  _edgeMap.insert(edge, GVEdge(name));
+  EdgeId edgeId = 0;
+  qint64 multiId = sourceId*sourceId*sourceId - targetId*targetId; // must be unique
+
+  const bool is_self_edge = (source == target);
+  if (is_self_edge) {
+    if (_self_nodes.contains(sourceId))
+      edgeId = _self_nodes[sourceId];
+  } else {
+    if (_multi_nodes.contains(multiId))
+      edgeId = _multi_nodes[multiId];
+  }
+
+  if (!edgeId) {
+    Agedge_t *edge = _agedge(_graph, source, target, 0, true);
+    Q_ASSERT(edge);
+    edgeId = id(edge);
+    Q_ASSERT(edge);
+    _edgeMap.insert(edge, GVEdge(name));
+  }
+
+  if (is_self_edge) {
+    if (!_self_nodes.contains(sourceId)) {
+      _self_nodes[sourceId] = edgeId;
+      _self_edges[edgeId] = QString();
+      setEdgeAttribute(edgeId, "tailport", "s");
+      setEdgeAttribute(edgeId, "headport", "s");
+    }
+  } else {
+    if (!_multi_nodes.contains(multiId)) {
+      _multi_nodes[multiId] = edgeId;
+      _multi_edges[edgeId] = QString();
+    }
+  }
+
   return edgeId;
 }
 
@@ -330,6 +362,32 @@ void GVGraph::setNodeAttribute(NodeId id, const QString &attr, const QString &va
 void GVGraph::setEdgeAttribute(EdgeId id, const QString &attr, const QString &value)
 {
   _agset(agEdge(id), attr, value);
+}
+
+void GVGraph::setEdgeLabel(EdgeId id, const QString &val)
+{
+  if (val.startsWith(QLatin1Char('.')))
+    return;
+
+  QString label = val;
+
+  if (val.endsWith(":n")) {
+      setEdgeAttribute(id, "tailport", "n");
+      setEdgeAttribute(id, "headport", "n");
+      label = val.mid(0, val.size() - 2);
+  }
+
+  if (_self_edges.contains(id)) {
+      label = (!_self_edges[id].isEmpty() ? _self_edges[id] + " " : "") + label;
+      _self_edges[id] = label;
+  }
+
+  if (_multi_edges.contains(id)) {
+      label = (!_multi_edges[id].isEmpty() ? _multi_edges[id] + " " : "") + label;
+      _multi_edges[id] = label;
+  }
+
+  setEdgeAttribute(id, QLatin1String("label"), label);
 }
 
 QRectF GVGraph::boundingRect() const

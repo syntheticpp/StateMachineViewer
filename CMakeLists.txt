@@ -2,13 +2,18 @@ cmake_minimum_required(VERSION 2.8.9)
 
 project(statemachineviewer)
 
-cmake_policy(SET CMP0020 NEW) # link qtmain
-set(QT_USE_IMPORTED_TARGETS true)
-find_package(Qt4 ${QT_MIN_VERSION} REQUIRED QtCore QtGui)
-include(${QT_USE_FILE})
+if(qt5)
+    add_definitions(-DQT5)
+else()
+    cmake_policy(SET CMP0020 NEW) # link qtmain
+    set(QT_USE_IMPORTED_TARGETS true)
+    find_package(Qt4 ${QT_MIN_VERSION} REQUIRED QtCore QtGui)
+    include(${QT_USE_FILE})
+endif()
 
 if(WIN32)
     set(LIBCGRAPHVIZ_DLL 1)
+    add_definitions(-DMAKE_GAMMARAY_LIB)
 endif()
 
 add_subdirectory(libcgraphviz)
@@ -27,14 +32,19 @@ add_definitions(${LIBCGRAPHVIZ_DEFINITIONS})
 add_definitions(-DGAMMARAY_GRAPHVIZ_EMBEDDED -DMAKE_GAMMARAY_LIB)
 add_definitions(${GRAPHVIZ_COMPILE_FLAGS})
 
-include_directories(${GRAPHVIZ_INCLUDE_DIR} ${GRAPHVIZ_INCLUDE_DIR}/graphviz ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR})
+include_directories(${GRAPHVIZ_INCLUDE_DIR} ${GRAPHVIZ_INCLUDE_DIR}/graphviz ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 
 
 file(GLOB headers ${CMAKE_CURRENT_SOURCE_DIR}/*.h)
 file(GLOB gvheaders ${CMAKE_CURRENT_SOURCE_DIR}/gvgraph/*.h)
 
-qt4_wrap_cpp(moced ${headers} OPTIONS "-nw")
-qt4_wrap_ui(uiced statemachineviewer.ui)
+if(qt5)
+    qt5_wrap_cpp(moced ${headers} OPTIONS "-nw")
+    qt5_wrap_ui(uiced statemachineviewer.ui)
+else()
+    qt4_wrap_cpp(moced ${headers} OPTIONS "-nw")
+    qt4_wrap_ui(uiced statemachineviewer.ui)
+endif()
 source_group("Generated Files" FILES ${moced} ${uiced})
 
 file(GLOB sources ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)

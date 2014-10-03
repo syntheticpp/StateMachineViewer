@@ -44,6 +44,10 @@ void DeferredResizeModeSetter::setSectionResizeMode()
   if (m_view->count() <= m_section)
     return; // section not loaded yet
 
+#ifdef QT5
+  m_view->setSectionResizeMode(m_section, m_resizeMode);
+#else
   m_view->setResizeMode(m_section, m_resizeMode);
+#endif
 }
 

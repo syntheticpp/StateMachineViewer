@@ -261,13 +261,13 @@ void StateMachineViewerServer::handleTransitionTriggered(QAbstractTransition *tr
 
 void StateMachineViewerServer::stateEntered(QAbstractState *state)
 {
-  emit message(tr("State entered: %1").arg(Util::displayString(state)));
+  emit message(tr("Entered   : %1").arg(Util::displayString(state)));
   stateConfigurationChanged();
 }
 
 void StateMachineViewerServer::stateExited(QAbstractState *state)
 {
-  emit message(tr("State exited: %1").arg(Util::displayString(state)));
+  emit message(tr("Exited    : %1").arg(Util::displayString(state)));
   stateConfigurationChanged();
 }
 

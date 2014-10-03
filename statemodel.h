@@ -42,8 +42,8 @@ class StateModelPrivate
 
   Q_DECLARE_PUBLIC(StateModel)
   StateModel * const q_ptr;
-  StateMachineWatcher * const m_stateMachineWatcher;
   QStateMachine *m_stateMachine;
+  StateMachineWatcher * const m_stateMachineWatcher;
   QSet<QAbstractState*> m_lastConfiguration;
 
   QList<QObject*> children(QObject *parent) const;
@@ -78,6 +78,10 @@ class StateModel : public ObjectModelBase<QAbstractItemModel>
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
     QModelIndex parent(const QModelIndex &index) const;
+
+#ifdef QT5
+    QHash<int,QByteArray> roleNames() const;
+#endif
 
   protected:
     Q_DECLARE_PRIVATE(StateModel)

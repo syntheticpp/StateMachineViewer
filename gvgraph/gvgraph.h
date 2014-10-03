@@ -29,6 +29,8 @@
 #include <QFont>
 #include <QHash>
 #include <QString>
+#include <QMap>
+
 
 namespace GammaRay {
 
@@ -44,7 +46,7 @@ class GVGraph
      * \brief Construct a Graphviz graph object
      * \param name The name of the graph, must be unique in the application
      */
-    explicit GVGraph(const QString &name);
+    explicit GVGraph(const QString &name, bool left2right);
     ~GVGraph();
 
     GraphId addGraph(const QString &name);
@@ -70,6 +72,12 @@ class GVGraph
     QList<GVEdgePair> gvEdges() const;
 
     void setEdgeAttribute(EdgeId id, const QString &attr, const QString &value);
+
+    /* Label name:
+        1. ends with :n   ->  loop on top of the node
+        2. starts with .  ->  not printed
+    */
+    void setEdgeLabel(EdgeId id, const QString &value);
 
     /// Set the font to use in all the labels
     void setFont(const QFont &font);
@@ -108,6 +116,7 @@ class GVGraph
 
     QRectF boundingRectForAgraph(Agraph_t *graph) const;
 
+    bool _left2right;
     GVC_t *_context;
     Agraph_t *_graph;
     QFont _font;
@@ -119,6 +128,12 @@ class GVGraph
     QHash<Agraph_t *, GVSubGraph> _graphMap;
     QHash<Agedge_t *, GVEdge> _edgeMap;
     QHash<Agnode_t *, GVNode> _nodeMap;
+
+    QMap<NodeId, EdgeId> _self_nodes;
+    QMap<EdgeId, QString> _self_edges;
+
+    QMap<qint64, EdgeId> _multi_nodes;
+    QMap<EdgeId, QString> _multi_edges;
 };
 
 }

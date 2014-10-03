@@ -45,6 +45,10 @@ class TransitionModel : public ObjectModelBase<QAbstractItemModel>
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
     QModelIndex parent(const QModelIndex &index) const;
 
+#ifdef QT5
+    QHash<int,QByteArray> roleNames() const;
+#endif
+
   protected:
     Q_DECLARE_PRIVATE(TransitionModel)
     TransitionModelPrivate *const d_ptr;
