@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 2.8.9)
 
 project(statemachineviewer)
 
+set(smvdir ${CMAKE_CURRENT_SOURCE_DIR}/statemachineviewer)
+
 if(qt5)
     add_definitions(-DQT5)
 else()
@@ -32,25 +34,24 @@ add_definitions(${LIBCGRAPHVIZ_DEFINITIONS})
 add_definitions(-DGAMMARAY_GRAPHVIZ_EMBEDDED -DMAKE_GAMMARAY_LIB)
 add_definitions(${GRAPHVIZ_COMPILE_FLAGS})
 
-include_directories(${GRAPHVIZ_INCLUDE_DIR} ${GRAPHVIZ_INCLUDE_DIR}/graphviz ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${GRAPHVIZ_INCLUDE_DIR} ${GRAPHVIZ_INCLUDE_DIR}/graphviz ${CMAKE_CURRENT_BINARY_DIR} ${smvdir})
 
+file(GLOB sources   ${smvdir}/*.cpp)
+file(GLOB gvsources ${smvdir}/gvgraph/*.cpp)
 
-file(GLOB headers ${CMAKE_CURRENT_SOURCE_DIR}/*.h)
-file(GLOB gvheaders ${CMAKE_CURRENT_SOURCE_DIR}/gvgraph/*.h)
+file(GLOB headers   ${smvdir}/*.h)
+file(GLOB gvheaders ${smvdir}/gvgraph/*.h)
 
 if(qt5)
     qt5_wrap_cpp(moced ${headers} OPTIONS "-nw")
     qt5_wrap_ui(uiced statemachineviewer.ui)
 else()
     qt4_wrap_cpp(moced ${headers} OPTIONS "-nw")
-    qt4_wrap_ui(uiced statemachineviewer.ui)
+    qt4_wrap_ui(uiced ${smvdir}/statemachineviewer.ui)
 endif()
 source_group("Generated Files" FILES ${moced} ${uiced})
-
-file(GLOB sources ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
-file(GLOB gvsources ${CMAKE_CURRENT_SOURCE_DIR}/gvgraph/*.cpp)
     
-list(REMOVE_ITEM sources ${CMAKE_CURRENT_SOURCE_DIR}/test_main.cpp)
+list(REMOVE_ITEM sources ${smvdir}/test_main.cpp)
 
 add_library(statemachineviewer SHARED ${sources} ${headers} ${gvsources} ${gvheaders} ${moced} ${uiced})
 set(linklibs ${GRAPHVIZ_GRAPH_LIBRARY} ${QT_QTGUI_LIBRARIES}  ${QT_QTCORE_LIBRARIES})
