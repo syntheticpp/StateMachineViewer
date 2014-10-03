@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 2.8.9)
 project(libcgraphviz C)
 
 
-if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+if(WIN32 AND CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
     if(NOT LIBCGRAPHVIZ_STATIC)
         set(LIBCGRAPHVIZ_DLL 1)
     endif()
@@ -180,7 +180,7 @@ set(LIB_CGRAPH
     ${SRCDIR}/lib/cgraph/write.c
     ${SRCDIR}/lib/cgraph/grammar.c)
 
-file(GLOB_RECURSE HEADERS ${SRCDIR} *.h)
+file(GLOB_RECURSE HEADERS ${CMAKE_SOURCE_DIR} *.h)
 
 include_directories(
     ${SRCDIR}/lib/cgraph
@@ -215,13 +215,16 @@ endif()
 
 
 if(MSVC)
-    include_directories(${SRCDIR}/windows)
     if(CMAKE_C_FLAGS MATCHES "/W[0-4]")
         string(REGEX REPLACE "/W[0-4]" "/W1" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
     endif()
     if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
         string(REGEX REPLACE "/W[0-4]" "/W1" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
     endif()
+endif()
+
+if(WIN32)
+    include_directories(${SRCDIR}/windows)
 else()
     include_directories(${SRCDIR}/../linux-gcc)
     add_definitions(-DGVLIBDIR=".")
