@@ -114,6 +114,7 @@ public:
         vbox->setMargin(0);
 
         QStateMachine *machine = new QStateMachine(this);
+        machine->setObjectName("Traffic light");
         QState *redGoingYellow = createLightState(widget->redLight(), 3000);
         redGoingYellow->setObjectName("redGoingYellow");
         QState *yellowGoingGreen = createLightState(widget->yellowLight(), 1000);
